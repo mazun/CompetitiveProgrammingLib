@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 # coding: UTF-8
 
-def solve():
+def main():
+	
 	return 0
 
 ## -------------------------------------------
@@ -36,11 +37,6 @@ def toSepStr(lst):
 		return "".join([str(item) + " " for item in lst])[:-1]
 	else:
 		return ""
-
-def main():
-	caseNum = int(getline())
-	for case in range(caseNum):
-		print "Case #%d: %s" % (case + 1, solve())
 
 if __name__ == "__main__":
 	main()
