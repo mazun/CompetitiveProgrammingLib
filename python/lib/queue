@@ -1,0 +1,24 @@
+class Queue:
+	def __init__(self, init = []):
+		self._size = 0
+		self._front = None
+		init.reverse()
+		for val in init:
+			self.push(val)
+
+	def push(self, val):
+		self._size += 1
+		self._front = (val, self._front)
+
+	def front(self):
+		return self._front[0]
+
+	def pop(self):
+		self._size -= 1
+		self._front = self._front[1]
+
+	def size(self):
+		return self._size
+
+	def empty(self):
+		return self._size == 0

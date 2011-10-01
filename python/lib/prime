@@ -1,0 +1,21 @@
+# Generate Primes in [0 .. n]
+def genPrimes(n):
+	isPrime = array(n + 1, True)
+	isPrime[0] = False
+	isPrime[1] = False
+	
+	for i in xrange(4, n + 1, 2):
+		isPrime[i] = False
+		
+	for i in xrange(3, int(sqrt(n)) + 1, 2):
+		if isPrime[i]:
+			for j in xrange(i + i, n + 1, i):
+				isPrime[j] = False
+
+	primes = [2]
+
+	for i in xrange(3, n + 1, 2):
+		if isPrime[i]:
+			primes.append(i)
+
+	return (primes, isPrime)

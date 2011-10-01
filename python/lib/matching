@@ -1,0 +1,25 @@
+# g: g[i][j] = k <==> i is connected to k
+# m: number of left node
+def matching(g, m):
+	n        = len(g) # number of node
+	matches  = 0
+	matching = array(n, -1)
+
+	def argument(left):
+		if left < 0:
+			return True
+		if visited[left]:
+			return False
+		visited[left] = True
+		for right in g[left]:
+			if argument(matching[right]):
+				matching[right] = left
+				return True
+		return False
+
+	for left in xrange(m):
+		visited  = array(n, False)
+		if argument(left):
+			matches += 1
+
+	return matches

@@ -1,0 +1,45 @@
+def maxFlow(g, s, d):
+	n = len(g)
+	ans = 0
+
+	while True:
+		prevs = array(n, -1)
+		q     = Queue()
+		ok    = False
+
+		prevs[s] = n
+		q.push(s)
+
+		while not q.empty():
+			now = q.front()
+			q.pop()
+
+			if now == d:
+				ok = True
+				break
+
+			for i in xrange(n):
+				if g[now][i] > 0 and prevs[i] == -1:
+					prevs[i] = now
+					q.push(i)
+
+		if not ok:
+			return ans
+
+		f = 1 << 30
+		pos = d
+
+		while pos != s:
+			pos2 = prevs[pos]
+			f = min(f, g[pos2][pos])
+			pos = pos2
+
+		pos = d
+
+		while pos != s:
+			pos2 = prevs[pos]
+			g[pos2][pos] -= f
+			g[pos][pos2] += f
+			pos = pos2
+
+		ans += f

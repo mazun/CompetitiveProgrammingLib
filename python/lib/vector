@@ -1,0 +1,48 @@
+class Vector:
+	def __init__(self, init = []):
+		self._size = 0
+		self._cont = []
+		init.reverse()
+		for val in init:
+			self.push_back(val)
+
+	def __str__(self):
+		return str(self._cont[0:self._size])
+
+	def __iter__(self):
+		cont = self._cont
+
+		class Iterator:
+			def __init__(self):
+				self._pos  = 0
+			def next(self):
+				if self._pos == len(cont):
+					raise StopIteration
+				val = cont[self._pos]
+				self._pos += 1
+				return val
+
+		return Iterator()
+
+	def push_back(self, val):
+		alloc = len(self._cont)
+		if alloc == self._size:
+			self._cont.append(val)
+		else:
+			self._cont[self._size] = val
+		self._size += 1
+
+	def front(self):
+		return self._cont[0]
+
+	def back(self):
+		return self._cont[self._size - 1]
+
+	def pop_back(self):
+		self._size -= 1
+
+	def size(self):
+		return self._size
+
+	def empty(self):
+		return self._size == 0

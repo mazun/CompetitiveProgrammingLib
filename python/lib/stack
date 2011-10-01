@@ -1,0 +1,9 @@
+class Stack(Vector):
+	def __init__(self, init = []):
+		Vector.__init__(self, init)
+	def push(self, val):
+		Vector.push_back(self, val)
+	def top(self):
+		return Vector.back(self)
+	def pop(self):
+		Vector.pop_back(self)

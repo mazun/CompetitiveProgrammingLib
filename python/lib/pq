@@ -1,0 +1,16 @@
+from heapq import heappush, heappop, heapify
+
+class PriorityQueue:
+    def __init__(self, init = []):
+        self._heap = []
+        map(self.push, init)
+    def push(self, val):
+        heappush(self._heap, val)
+    def top(self):
+        return self._heap[0]
+    def pop(self):
+        heappop(self._heap)
+    def size(self):
+        return len(self._heap)
+    def empty(self):
+        return self.size() == 0

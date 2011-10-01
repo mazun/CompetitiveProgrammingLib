@@ -1,0 +1,10 @@
+import array
+
+def genIntArray(n, init = 0):
+	return array.array('i', genArray(n, init))
+
+def genLongArray(n, init = 0):
+	return array.array('l', genArray(n, init))
+
+def genDoubleArray(n, init = 0.0):
+	return array.array('d', genArray(n, init))

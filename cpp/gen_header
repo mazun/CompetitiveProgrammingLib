@@ -1,0 +1,328 @@
+#!/usr/bin/env python
+# coding: UTF-8
+
+# config
+database = "gen_header_database"
+tmp_dir  = "gen_header_tmp"
+tmp_filename_nondir = "gen_header_tmp.cpp"
+
+import sys
+import commands
+import os
+import shutil
+from copy import deepcopy
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
+tmp_filename = tmp_dir + os.sep + tmp_filename_nondir
+
+def unique (ls):
+    ret = []
+    if len(ls) == 0:
+        return ret
+
+    ls.sort()
+
+    ret.append(ls[0])
+    for i in range(len(ls) - 1):
+        if ls[i + 1] != ls[i]:
+            ret.append(ls[i + 1])
+
+    return ret
+
+def save_database (dictionary):
+    open(database, "w").write(json.dumps(dictionary))
+
+def load_database ():
+    try:
+        return json.load(open(database, "r"))
+    except IOError:
+        return {}
+
+def get_tokens (filename):
+    split_word = [" ", "\t", "<", ">", "{", "}", "[", "]",\
+                      "(", ")", ";", "\r", "\n", ":", "#",\
+                      ",", "+", "*", "/", "-", "|", "&",\
+                      "^", "~", "."]
+
+    tokens = []
+
+    for line in open(filename):
+        tokens.append(line)
+    for sp in split_word:
+        new_tokens = []
+        for token in tokens:
+            for t in token.split(sp):
+                new_tokens.append(t)
+        tokens = new_tokens
+        if sp in tokens:
+            tokens.remove(sp)
+
+    if "" in tokens:
+        tokens.remove("")
+
+    return unique(tokens)
+
+def gen_graph (tokens, dictionary):
+    ret = []
+    for i in range(len(dictionary)):
+        ret.append([])
+
+    tcnt = 0
+    for t in tokens:
+        dcnt = 0
+        for d in dictionary:
+            if (t in dictionary[d][1]):
+                ret[dcnt].append(tcnt)
+            dcnt = dcnt + 1
+        tcnt = tcnt + 1
+
+    return ret
+
+def max_element (graph):
+    ret = 0
+    for g in graph:
+        for gg in g:
+            ret = max(ret, gg)
+    return ret
+
+def len_max_id (graph):
+    mx = -1
+    for i in range(len(graph)):
+        g = graph[i]
+        if mx < len(g):
+            mx = len(g)
+            ret = i
+    return ret
+
+# Solve problem by greedy
+def solve_graph (graph, dictionary):
+    n = len(graph)
+    ret = []
+
+    # tokens = get_tokens("1004.cpp")
+
+    while True:
+        use = len_max_id(graph)
+        if len(graph[use]) == 0:
+            break
+
+        ret.append(use)
+
+        for g in graph[use]:
+            for gg in graph:
+                if g in gg:
+                    gg.remove(g)
+
+    ans = []
+    dcnt = 0
+    for d in dictionary:
+        if dcnt in ret:
+            ans.append(d)
+        dcnt = dcnt + 1
+
+    return ans
+
+def n_str (n, str):
+    ret = ""
+    for i in range(n):
+        ret = ret + str
+    return ret
+
+def process_class (str):
+    ret = deepcopy(str)
+
+    pos = 0
+    while (ret[pos:].find("class ") != -1) or (ret[pos:].find("struct ") != -1):
+        tmp = ret[pos:].find("class ")
+        if tmp == -1:
+            tmp = ret[pos:].find("struct ")
+        else:
+            tmp2 = ret[pos:].find("struct ")
+            if tmp2 != -1:
+                tmp = min(tmp, tmp2)
+        pos = pos + tmp
+
+        while pos < len(ret) and (ret[pos] != ";" and ret[pos] != "{"):
+            pos = pos + 1
+
+        if pos >= len(ret):
+            break
+
+        if ret[pos] == "{":
+            nest = 1
+            pos1 = pos
+            while nest > 0:
+                pos = pos + 1
+                if ret[pos] == "}":
+                    nest = nest - 1
+                elif ret[pos] == "{":
+                    nest = nest + 1
+            pos2 = pos
+
+            ret = ret[0:pos1+1] + ret[pos2:]
+            pos = pos1
+    return ret
+
+def exit_with(mes):
+    if mes != "":
+        print mes
+    shutil.rmtree(tmp_dir)
+    exit()
+
+def gen_database(filename):
+    # Compile tmp file with -E and -dN option
+    (status, output) = commands.getstatusoutput("g++ -E -dN " + tmp_filename)
+    
+    if status != 0:
+        exit_with("An error occuerfed in processing (g++ -E -dN " + file + ")")
+
+    open(tmp_filename, "w").write(process_class(output))
+
+    # Analyze header file using ctags
+    (status, output) = commands.getstatusoutput("cd " + tmp_dir + "; gtags; global -f " + tmp_filename_nondir)
+    
+    if status != 0:
+        exit_with("An error may occurrd in processing (gtags " + file + ")")
+        
+    symbols = []
+    for line in output.split("\n"):
+        symbols.append(line.split(" ")[0])
+
+    return unique(symbols)
+
+def minus (ls1, ls2):
+    # ret = { s | (s \in ls1) and (s \notin ls2) }
+    ls1.sort()
+    ls2.sort()
+
+    ret = []
+
+    p1 = 0
+    p2 = 0
+
+    while p1 != len(ls1):
+        word = ls1[p1]
+        while (p2 < len(ls2) - 1) and (word > ls2[p2]):
+            p2 = p2 + 1
+        if word != ls2[p2]:
+            ret.append(word)
+        p1 = p1 + 1
+
+    return ret
+
+if __name__ == '__main__':
+
+    argv = sys.argv
+    argc = len(argv)
+
+    if ("-h" in argv) or ("--help" in argv) or (argc == 1):
+        ###
+        # Print Usage
+        ###
+
+        print "Usage: " + argv[0] + " filename"
+        print "       " + argv[0] + " --generate_database [option] headers"
+        print "       " + argv[0] + " --generate_inline_database [option] headers"
+        print "       " + argv[0] + " --remove_database headers"
+        print "Options:"
+        print "  " + "-a" + "\t" + "Add header to exisiting database"
+        print ""
+        print "Database information:"
+
+        print " Name" + n_str(20 - len("Name"), " ") + "Inline"
+        print "-----" + n_str(20 - len("Name"), "-") + "------"
+        dictionary = load_database()
+        for d in dictionary:
+            print " " + d + n_str(20 - len(d), " ") + str(dictionary[d][0])
+
+    elif (argv[1] == "--generate_database") or (argv[1] == "--generate_inline_database"):
+        ###
+        # Generate database file
+        ###
+
+        files = argv[2:]
+        inline = argv[1] == "--generate_inline_database"
+
+        if("-a" in files):
+            files.remove("-a")
+            dictionary = load_database()
+        else:
+            if os.path.isfile(database):
+                # Ask if remove existing file
+                yn = raw_input("Remove existing database? (y/N): ")
+                if yn != "y" or yn != "Y":
+                    exit()
+            dictionary = {}
+
+        # Make tmp directory
+        try:
+            os.mkdir(tmp_dir)
+        except OSError:
+            ""
+
+        # compile empty file
+        open(tmp_filename, "w")
+        empty_symbols = gen_database(tmp_filename)
+
+        for file in files:
+            # Generate tmp files merely includes header file
+            if inline:
+                open(tmp_filename, "w").write("#include \"../" + file + "\"\n")
+            else:
+                open(tmp_filename, "w").write("#include \"" + file + "\"\n")
+
+            dictionary[file] = (inline, minus(gen_database(tmp_filename), empty_symbols))
+
+        shutil.rmtree(tmp_dir)
+        save_database(dictionary)
+
+    elif argv[1] == "--remove_database":
+        ###
+        # Remove Database
+        ###
+
+        dictionary = load_database()
+        for file in argv[2:]:
+            if file in dictionary:
+                print "Remove " + file + ": ok." 
+                del dictionary[file]
+            else:
+                print "Remove " + file + ": no such file in database."                 
+        save_database(dictionary)
+
+    else:
+        ###
+        # Normal mode
+        ###
+
+        dictionary = load_database()
+        filename = argv[1]
+
+        # As the code inline expanding may depend on other header,
+        # we should do same thing twice.
+        for iteration in range(2):
+            # Get tokens
+            tokens = get_tokens(filename)
+
+            includes = solve_graph(gen_graph(tokens, dictionary), dictionary)
+
+            as_str_inc = ""
+            as_str_inl = ""
+
+            contents = open(filename, "r").read()
+
+            for inc in includes:
+                if dictionary[inc][0]: # Inline?
+                    s = open(inc, "r").read()
+                    if contents.find(s) == -1:
+                        as_str_inl = as_str_inl + s + "\n"
+                else:
+                    s = "#include <" + inc + ">"
+                    if contents.find(s) == -1:
+                        as_str_inc = as_str_inc + s + "\n"
+
+            open(filename, "w").write(as_str_inc + as_str_inl + contents)
