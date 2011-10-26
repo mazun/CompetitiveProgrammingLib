@@ -224,3 +224,59 @@ public:
     return searchr(head->r, range, 1);
   }
 };
+class Circle{
+public:
+  P p;
+  double r;
+
+  Circle(P c, double rr) : p(c), r(rr) {}
+};
+
+inline bool complexEq(const P &p1, const P &p2){
+  return std::abs(p1 - p2) < EPS;
+}
+
+inline bool circleEq(const Circle &c1, const Circle &c2){
+  return complexEq(c1.p, c2.p) && std::abs(c1.r - c2.r) < EPS;
+}
+
+bool isCross(const Circle &c1, const Circle &c2){
+  if(abs(c1.p - c2.p) < c1.r + c2.r + EPS)
+    if(abs(c1.p - c2.p) + EPS > max(c1.r, c2.r) - min(c1.r, c2.r))
+      return true;
+  return false;
+}
+
+bool isCross(const Circle &c1, const Line &l1){
+  return dist(l1, c1.p) < c1.r + EPS;
+}
+
+// ベクトルpをベクトルbに射影したベクトルを計算する
+inline P proj(const P &p, const P &b) {
+  return b*inp(p,b)/norm(b);
+}
+ 
+// 点pから直線lに引いた垂線の足となる点を計算する
+inline P perf(const Line &l, const P &p) {
+  Line m = LineDirect(l.p - p, l.d);
+  return (p + (m.p - proj(m.p, m.d)));
+}
+ 
+// 線分sを直線bに射影した線分を計算する
+inline Line proj(const Line &s, const Line &b) {
+  return LineDirect(perf(b, s.p), proj(s.d, b.d));
+}
+
+vector<P> crossPoints(const Circle &c, const Line &l) {
+  P h = perf(l, c.p);
+  double d = abs(h - c.p);
+  vector<P> res;
+  if(d < c.r - EPS){
+    P x = l.d / abs(l.d) * sqrt(c.r*c.r - d*d);
+    res.push_back(h + x);
+    res.push_back(h - x);
+  }else if(d < c.r + EPS){
+    res.push_back(h);
+  }
+  return res;
+}
