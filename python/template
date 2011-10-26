@@ -30,9 +30,6 @@ def count_if(lst, pred):
 		if pred(i): ret = ret + 1
 	return ret
 
-def count(lst, val):
-	return count_if(lst, lambda x: x == val)
-
 def toSepStr(lst):
 	if len(lst):
 		return "".join([str(item) + " " for item in lst])[:-1]
