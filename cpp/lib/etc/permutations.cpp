@@ -1,4 +1,5 @@
 // [s, e]: must be sorted
+// BUG: [s, e] must differ each other
 // n is 0-based
 // Iterator must be Random Iterator
 template<class Iterator>
