@@ -68,7 +68,6 @@ bool ok_str(const char *p, const char *a){
   const char *s = strstr(a, p);
   const int  r3 = s ? static_cast<int>(s - a) : -1;
 
-  printf("%s %s: %d %d %d\n", p, a, r1, r2, r3);
   return r1 == r2 && r2 == r3;
 }
 
