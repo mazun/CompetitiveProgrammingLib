@@ -28,10 +28,10 @@ int rksearch(const char *p, const char *a){
     h1 = (h1*d+p[i]) % q;
     h2 = (h2*d+a[i]) % q;
   }
-  /* hashなので確認が必要では？ */
+
   for(i=0; h1!=h2 || strncmp(p, &a[i], M)!=0; i++){
-    h2 = (h2+d*q-a[i]*dM) %q;
-    h2 = (h2*d+a[i+M])    %q;
+    h2 = (int)((h2+(long long)d*q-a[i]*dM) % q);
+    h2 = (int)((h2*d+a[i+M]) % q);
     if(i>N-M) return -1;
   }
   return i;
