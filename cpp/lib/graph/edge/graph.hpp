@@ -30,16 +30,15 @@ public:
 
   void addEdge(int from, int to, int cap){
     g[from].push_back(E(cap, to, g[to].size()));
-    g[to].push_back(E(0, to, g[from].size() - 1));
+    g[to].push_back(E(0, from, g[from].size() - 1));
   }
 
   void addEdge(int from, int to, int cap, int cost){
     g[from].push_back(E(cap, to, cost, g[to].size()));
-    g[to].push_back(E(0, to, cost, g[from].size() - 1));
+    g[to].push_back(E(0, from, -cost, g[from].size() - 1));
   }
 
   G &getRowGraph(){
     return g;
   }
 };
-
