@@ -58,3 +58,24 @@ BOOST_AUTO_TEST_CASE( primes ){
   BOOST_CHECK_EQUAL( p[5], 13 );
   BOOST_CHECK_EQUAL( p[6], 17 );
 }
+
+#include "string/ssearch.cpp"
+#include <cstring>
+
+bool ok_str(const char *p, const char *a){
+  const int  r1 = kmpsearch(p, a);
+  const int  r2 = rksearch(p, a);
+  const char *s = strstr(a, p);
+  const int  r3 = s ? static_cast<int>(s - a) : -1;
+
+  printf("%s %s: %d %d %d\n", p, a, r1, r2, r3);
+  return r1 == r2 && r2 == r3;
+}
+
+BOOST_AUTO_TEST_CASE( ssearch ){
+  BOOST_CHECK( ok_str("ab"     , "cdabew") );
+  BOOST_CHECK( ok_str("myon"   , "I love myonmyon") );
+  BOOST_CHECK( ok_str("world"  , "Hello, world.") );
+  BOOST_CHECK( ok_str("star"   , "lucky star") );
+  BOOST_CHECK( ok_str("nothing", "everything") );
+}
