@@ -78,3 +78,48 @@ BOOST_AUTO_TEST_CASE( ssearch ){
   BOOST_CHECK( ok_str("star"   , "lucky star") );
   BOOST_CHECK( ok_str("nothing", "everything") );
 }
+
+#include <cstdlib>
+#include "etc/sum.hpp"
+
+int g[10][10];
+int gg[10][10][10][10];
+
+bool checksum(void){
+  for(int i = 0; i < 10; i++){
+    for(int j = 0; j < 10; j++){
+      g[i][j] = rand() % 100;
+    }
+  }
+
+  sum(g, gg, 10, 10);
+
+  for(int i = 0; i < 10; i++){
+    for(int j = 0; j < 10; j++){
+      for(int k = 0; k < 10; k++){
+	for(int l = 0; l < 10; l++){
+	  int tmp = 0;
+
+	  for(int y = i; y <= k; y++){
+	    for(int x = j; x <= l; x++){
+	      tmp += g[y][x];
+	    }
+	  }
+
+	  if(tmp != gg[i][j][k][l]){
+	    std::cout << gg[i][j][k][l] << "!=" << tmp << std::endl;
+	    std::cout << "(" << i << "," << j << "," << k << "," << l << ")" << std::endl;
+	    return false;
+	  }
+	}
+      }
+    }
+  }
+  return true;
+}
+
+BOOST_AUTO_TEST_CASE( sum_test ){
+  for(int i = 0; i < 10; i++){
+    BOOST_CHECK(checksum());
+  }
+}
