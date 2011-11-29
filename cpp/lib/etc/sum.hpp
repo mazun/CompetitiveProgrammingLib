@@ -5,6 +5,7 @@
 // otherwise
 //   ret[y1][x1][y2][x2] = 0
 //
+// O(h^2 * w^2)
 template<class T1, class T2, int H, int W>
 void sum(const T1 (&g)[H][W], T2 (&ret)[H][W][H][W], int h = H, int w = W){
   // initialize
@@ -14,20 +15,14 @@ void sum(const T1 (&g)[H][W], T2 (&ret)[H][W][H][W], int h = H, int w = W){
 	for(int l = 0; l < w; l++)
 	  ret[i][j][k][l] = 0;
 
-  // 1x1
-  for(int y = 0; y < h; y++)
-    for(int x = 0; x < w; x++)
-      ret[y][x][y][x] = g[y][x];
-
   // DP
   for(int sy = 0; sy < h; sy++)
     for(int sx = 0; sx < w; sx++)
-      if(sx != 0 || sy != 0)
-	for(int y = 0; y + sy < h; y++)
-	  for(int x = 0; x + sx < w; x++){
-	    ret[y][x][y + sy][x + sx] =
-	      (sy == 0 ? 0 : ret[y][x][y + sy - 1][x + sx]) +
-	      (sx == 0 ? 0 : ret[y + sy][x][y + sy][x + sx - 1]) +
-	      ret[y + sy][x + sx][y + sy][x + sx];
-	  }
+      for(int y = 0; y + sy < h; y++)
+	for(int x = 0; x + sx < w; x++){
+	  ret[y][x][y + sy][x + sx] =
+	    (sy == 0 ? 0 : ret[y][x][y + sy - 1][x + sx]) +
+	    (sx == 0 ? 0 : ret[y + sy][x][y + sy][x + sx - 1]) +
+	    g[y + sy][x + sx];
+	}
 }
