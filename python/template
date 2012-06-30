@@ -24,18 +24,6 @@ def getLineAs(tp):
 def array(n, init = 0):
 	return [deepcopy(init) for i in range(n)]
 
-def count_if(lst, pred):
-	ret = 0
-	for i in lst:
-		if pred(i): ret = ret + 1
-	return ret
-
-def toSepStr(lst):
-	if len(lst):
-		return "".join([str(item) + " " for item in lst])[:-1]
-	else:
-		return ""
-
 if __name__ == "__main__":
 	setrecursionlimit(1024 * 1024)
 	main()
