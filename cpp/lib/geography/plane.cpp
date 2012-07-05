@@ -82,26 +82,20 @@ bool intersect(const S &s1, const S &s2){
 	*ccw(s2.p1, s2.p2, s1.p2)) <= 0);
 }
 
-/* N角形pの中にtがあるかどうか */
 bool inside(P t, P *p, int N){
-  int count = 0, j = 0;
-  S lt(t, P(DBL_MAX,t.imag()));  
+  int count = 0;
+  S lt(t, P(DBL_MAX,t.imag() + 1e-3));
 
-  P pj = p[N-1];
-  for(int i=1; i<=N; i++){
-    S lp(p[i-1],p[i-1]);
-    if(ccw(lt.p1, lt.p2, p[i-1]) != 0){
-      if(i == j+1){
-	lp.p2 = pj;
-	if(intersect(lp,lt)) count++;
-      }else if(ccw(lt.p1, lt.p2, p[i-1])*ccw(lt.p1, lt.p2, pj) < 0)
-	count++;
-      j = i;
-      if(j == N) pj = p[0];
-      else pj = p[j-1];
+  for(int i=0; i<N; i++){
+    S lp(p[i == 0 ? N - 1 : i - 1], p[i]);
+    if(ccw(lt.p1, lt.p2, p[i == 0 ? N - 1 : i - 1]) != 0){
+      if(intersect(lp,lt)) count++;
+    }else{
+      return false;
     }
   }
-  return count & 1 == 1;
+
+  return (count & 1) == 1;
 }
 
 struct cmpTheta{
@@ -123,11 +117,11 @@ struct cmpTheta{
  */
 int grahamscan(P *p, int N){
   int min, M, i;
-  for(min=0, i=1; i<=N; i++)
+  for(min=0, i=0; i<N; i++)
     if(p[i].imag() < p[min].imag())
       min=i;
 
-  for(i=1; i<=N; i++)
+  for(i=0; i<N; i++)
     if(p[i].imag() == p[min].imag())
       if(p[i].real() > p[min].real())
 	min = i;
@@ -136,12 +130,12 @@ int grahamscan(P *p, int N){
 
   sort(p+1, p+N, cmpTheta(p[0]));
 
-  for(M=2, i=3; i<=N; i++){
+  for(M=2, i=3; i<N; i++){
     while(ccw(PP(p,M,N),PP(p,M-1,N),PP(p,i,N)) >= 0) M--;
     M++; swap(p[i], p[M]);
   }
 
-  return M;
+  return M + 1;
 }
 
 
