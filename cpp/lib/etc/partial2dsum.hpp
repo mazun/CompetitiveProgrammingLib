@@ -2,12 +2,12 @@ template<typename T>
 class Partial2DSum{
 private:
   vector<vector<T> > dp;
- 
+
   Partial2DSum(const vector<vector<T> > &d){
     const int h = d.size();
     const int w = d[0].size();
     dp = vector<vector<T> >(h, vector<T>(w));
- 
+
     REP(i,h) REP(j,w){
       T t = d[i][j];
       if(i != 0) t += dp[i - 1][j];
@@ -16,11 +16,11 @@ private:
       dp[i][j] = t;
     }
   }
- 
+
   template<int w, int h>
   Partial2DSum(const T (&d)[h][w]){
     dp = vector<vector<T> >(h, vector<T>(w));
- 
+
     REP(i,h) REP(j,w){
       T t = d[i][j];
       if(i != 0) t += dp[i - 1][j];
@@ -29,17 +29,17 @@ private:
       dp[i][j] = t;
     }
   }
- 
+
 public:
   static Partial2DSum build(const vector<vector<T> > &d){
     return Partial2DSum(d);
   }
- 
+
   template<int w, int h>
   static Partial2DSum build(const T (&d)[h][w]){
     return Partial2DSum(d);
   }
- 
+
   T query(int xs, int ys, int xe, int ye) const{
     int t = dp[ye][xe];
     if(ys != 0) t -= dp[ys - 1][xe];
@@ -48,3 +48,6 @@ public:
     return t;
   }
 };
+
+typedef Partial2DSum<int> IPartial2DSum;
+
