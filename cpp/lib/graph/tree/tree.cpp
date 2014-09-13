@@ -13,7 +13,7 @@ public:
     depth(depth), root(root){
   }
 
-  int lca(int a, int b){
+  int lca(int a, int b) const{
     if(depth[a] > depth[b]) swap(a, b);
     int ddiff = depth[b] - depth[a];
 
