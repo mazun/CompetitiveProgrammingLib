@@ -1,8 +1,8 @@
 class UnionFind{
 private:
-  vector<int> id;
+  mutable vector<int> id;
 
-  int getId(int i){
+  int getId(int i) const{
     if(i == id[i]) return i;
     return id[i] = getId(id[i]);
   }
@@ -18,8 +18,8 @@ public:
     int next = min( getId(i), getId(j) );
     id[getId(i)] = id[getId(j)] = next;
   }
-  int operator [](int i){ return getId(i); }
-  int count(){
+  int operator [](int i) const{ return getId(i); }
+  int count() const{
     set<int> s;
     for(int i = 0; i < (int)id.size(); i++)
       s.insert(getId(i));
