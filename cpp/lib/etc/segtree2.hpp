@@ -5,13 +5,12 @@ class SegmentTree{
   Func f;
   Data d;
 
-  Data query(int a, int b, int k, int l, int r) const{
-    if(r <= a || b <= l) return d;
-    if(a <= l && r <= b) return data[k];
+  void update(int a, int b, int k, int l, int r, const Data &v){
+    if(r <= a || b <= l) return;
+    if(a <= l && r <= b) data[k] = f(data[k], v);
     else{
-      const Data v1 = query(a, b, k * 2 + 1, l, (l + r) / 2);
-      const Data v2 = query(a, b, k * 2 + 2, (l + r) / 2, r);
-      return f(v1, v2);
+      update(a, b, k * 2 + 1, l, (l + r) / 2, v);
+      update(a, b, k * 2 + 2, (l + r) / 2, r, v);
     }
   }
 
@@ -22,17 +21,18 @@ public:
     data = std::vector<Data>(2 * n, d);
   }
 
-  void update(int k, const Data &a){
-    k += n - 1;
-    data[k] = a;
-    while(k > 0){
-      k = (k - 1) / 2;
-      data[k] = f(data[k * 2 + 1], data[k * 2 + 2]);
-    }
+  void update(int a, int b, const Data &v){
+    update(a, b, 0, 0, n, v);
   }
 
-  Data query(int a, int b) const{
-    return query(a, b, 0, 0, n);
+  Data query(int k){
+    k += n - 1;
+    Data ret = data[k];
+    while(k > 0){
+      k = (k - 1) / 2;
+      ret = f(ret, data[k]);
+    }
+    return ret;
   }
 };
 
