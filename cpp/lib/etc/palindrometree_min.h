@@ -1,12 +1,46 @@
-template<typename C, typename C::value_type low, typename C::value_type high>
+template<typename C, typename C::value_type low, typename C::value_type high, int bit = 32>
 class PalindromeTree{
   const static int m = high - low + 1;
+  const static int b = (m * bit + 31) / 32;
 
   typedef typename C::value_type T;
+
   struct node{
-    int next[m];
+    int next_[b];
     int len;
     int sufflink;
+
+    int next(int i){
+      const int bs = i * bit;
+      const int be = i * bit + bit;
+
+      const int ys = bs / 32;
+      const int sc = min(bit, 32 - (bs % 32));
+      const int ye = be / 32;
+      const int ec = bit - sc;
+
+      int ret = 0;
+      ret |= (next_[ys] >> (bs % 32)) & ((1ll << sc) - 1);
+      if(ec != 0) ret |= (next_[ye] & ((1ll << ec) - 1)) << sc;
+
+      return ret;
+    }
+
+    void next(int i, int v){
+      const int bs = i * bit;
+      const int be = i * bit + bit;
+
+      const int ys = bs / 32;
+      const int sc = min(bit, 32 - (bs % 32));
+      const int ye = be / 32;
+      const int ec = bit - sc;
+
+      next_[ys] &= ~(((1ll << sc) - 1) << (bs % 32));
+      next_[ys] |= (v & ((1ll << sc) - 1)) << (bs % 32);
+
+      if(ec != 0) next_[ye] &= ~((1ll << ec) - 1);
+      if(ec != 0) next_[ye] |= (v >> sc) & ((1ll << ec) - 1);
+    }
   };
 
   const C s;
@@ -20,7 +54,7 @@ class PalindromeTree{
   }
 
 public:
-  vector<node> tree;
+  node *tree;
   int suff;
 
   bool addLetter(int pos){
@@ -34,15 +68,16 @@ public:
       cur = tree[cur].sufflink;
     }
 
-    if(tree[cur].next[let]){
-      suff = tree[cur].next[let];
+    if(tree[cur].next(let)){
+      suff = tree[cur].next(let);
       return false;
     }
 
     num++;
+
     suff = num;
     tree[num].len = tree[cur].len + 2;
-    tree[cur].next[let] = num;
+    tree[cur].next(let, num);
 
     if(tree[num].len == 1){
       tree[num].sufflink = 2;
@@ -53,7 +88,7 @@ public:
       cur = tree[cur].sufflink;
       curLen = tree[cur].len;
       if(pos - 1 - curLen >= 0 && s[pos - 1 - curLen] == s[pos]){
-	tree[num].sufflink = tree[cur].next[let];
+	tree[num].sufflink = tree[cur].next(let);
 	break;
       }
     }
@@ -62,7 +97,7 @@ public:
   }
 
   PalindromeTree(const C &s)
-    : s(s), len(s.size()), tree(s.size() + 3){
+    : s(s), len(s.size()), tree(new node[s.size() + 3]){
     initTree();
   }
 
