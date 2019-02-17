@@ -31,6 +31,7 @@ public:
     }
   }
 
+  // [a, b)
   Data query(int a, int b) const{
     return query(a, b, 0, 0, n);
   }

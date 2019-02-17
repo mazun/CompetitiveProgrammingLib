@@ -21,6 +21,7 @@ public:
     data = std::vector<Data>(2 * n, d);
   }
 
+  // [a, b)
   void update(int a, int b, const Data &v){
     update(a, b, 0, 0, n, v);
   }
