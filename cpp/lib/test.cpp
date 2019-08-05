@@ -123,3 +123,16 @@ BOOST_AUTO_TEST_CASE( sum_test ){
     BOOST_CHECK(checksum());
   }
 }
+
+#include "etc/segtree.hpp"
+
+BOOST_AUTO_TEST_CASE( segtree1 ){
+  const int n = 10;
+  auto s1 = segtree(n, 0, [](int a, int b){ return a + b; });
+  BOOST_CHECK_EQUAL(s1.query(0, n), 0);
+  s1.update(5, 1);
+  BOOST_CHECK_EQUAL(s1.query(0, n), 1);
+  BOOST_CHECK_EQUAL(s1.query(5, 6), 1);
+  BOOST_CHECK_EQUAL(s1.query(0, 5), 0);
+  BOOST_CHECK_EQUAL(s1.query(6, n), 0);
+}

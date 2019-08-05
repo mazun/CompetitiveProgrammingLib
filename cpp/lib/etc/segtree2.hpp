@@ -17,6 +17,7 @@ class SegmentTree{
 public:
   SegmentTree(int nn, Func f, Data d) : f(f), d(d){
     n = 1;
+    assert(f(d, d) == d);
     while(n < nn) n *= 2;
     data = std::vector<Data>(2 * n, d);
   }
